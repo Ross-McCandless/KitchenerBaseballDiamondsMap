@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8 />
+  <title>Kitchener Diamonds</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet-src.js"></script>
+
+  <!-- Esri Leaflet -->
+  <script src="https://unpkg.com/esri-leaflet@2.0.7"></script>
+
+  <style>
+    body {height:100%; width:100%;}
+    #map {width: 100%; height: 700px;}
+    #toptitle {text-align: center; color: white; background-color: black; padding-top: 20px; padding-bottom: 20px; font-size: 20px; font-weight: bold; font-family: verdana; width: 100%; }
+
+  </style>
+</head>
+
+<div id="toptitle">Baseball Diamonds of Kitchener</div>
+
+<body>
+  <script src="https://unpkg.com/esri-leaflet-vector"></script>
+  <script src="https://unpkg.com/esri-leaflet-renderers@2.0.2"></script>
+  <script src="C:\Users\RossM\Desktop\Side\KitchenerBaseballDiamonds\Baseball_Diamonds.geojson"></script>
+  <div id="map"></div>
+
+  <script>
+    // MAP CONTAINER + BASEMAP
+    var map = L.map('map', {
+      center: [43.4516, -80.4925],
+      zoom: 13,
+      zoomControl: true
+    });
+
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+    maxZoom: 18,
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+      '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+      'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    id: 'mapbox.streets'
+    }).addTo(map);
+
+
+    L.geoJSON(geojson_baseballdiamonds, {
+      style: function(feature) {
+        switch (feature.properties.OWNERSHIP) {
+            case 'KITCHENER': return {color: "#FFA500"};
+            case 'PRIVATE':   return {color: "#0000ff"};
+        }
+      }, 
+      onEachFeature: onEachFeature}).addTo(map);
+
+    function zoomToFeature(x) {
+      map.fitBounds(x.target.getBounds());
+    };
+
+    function onEachFeature(feature, layer) {
+        layer.on({
+          mouseover: layer.bindPopup(feature.properties.LANDMARK),
+          click: zoomToFeature
+        })
+    };
+
+    // LEGEND
+    var colours = ['#000000', '#FFA500', '#0000ff'];
+    var labels = ['OWNERSHIP', 'KITCHENER', 'PRIVATE'];
+    var label_colour = ['#FFFFFF', '#FFFFFF', '#FFFFFF'];
+    var legend = L.control({position: 'topright'});
+    legend.onAdd = function(map){
+      var div = L.DomUtil.create('div', 'info legend');
+        for (var i = 0; i < colours.length; i++) {
+            div.innerHTML += 
+              '<div style="background-color:' + colours[i] + '; color:' + label_colour[i] + '; height: 20px; width: 100px; font-weight:bolder; text-align: center;">' + labels[i] + '</div>'
+
+        }
+        return div;
+    };
+    legend.addTo(map);
+
+    
+  </script> 
+</body>
+</html>
